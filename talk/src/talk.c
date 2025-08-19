@@ -5,33 +5,73 @@
 typedef struct {
   short versionFlag;
   short helpFlag;
-} flags; 
+} flags;
 
 // Print help message
 void displayUsage() {
   println(STDOUT, "Usage: ./talk [flags] <message>");
-  println(STDOUT, "Flags: ");
-  println(STDOUT, "-h --help: Display this");
-  println(STDOUT, "-v --version: Get version info");
-  return;
+  println(STDOUT, "Flags:");
+  println(STDOUT, "  -h --help     Display this help message");
+  println(STDOUT, "  -v --version  Display version info");
+}
+
+// Display version info
+void displayVersion() {
+  println(STDOUT, "talk v1.0.0");
+}
+
+// String compare wrapper using noblelib
+int strEq(const char *a, const char *b) {
+  return stringCompare(a, b) == 0;
 }
 
 // Search argv and return flags
-flags findFlags() {
-  flags flagData;
+flags findFlags(int argc, char **argv, int *messageIndex) {
+  flags flagData = {0, 0}; // Initialize all flags to 0
+  *messageIndex = -1;
+
+  for (int i = 1; i < argc; i++) {
+    if (strEq(argv[i], "-h") || strEq(argv[i], "--help")) {
+      flagData.helpFlag = 1;
+    } else if (strEq(argv[i], "-v") || strEq(argv[i], "--version")) {
+      flagData.versionFlag = 1;
+    } else {
+      *messageIndex = i; // First non-flag argument is the message
+      break;
+    }
+  }
+
   return flagData;
 }
 
-// Entry function
+// Entry point
 void main(int argc, char **argv) {
-  // Check usage
   if (argc < 2) {
     displayUsage();
     exit(1);
   }
 
-  // Get argument and print
-  println(STDOUT, argv[1]);
+  int messageIndex = -1;
+  flags flagData = findFlags(argc, argv, &messageIndex);
 
+  // Check if help flag was set
+  if (flagData.helpFlag) {
+    displayUsage();
+    exit(0);
+  }
+
+  // Check if version flag was set
+  if (flagData.versionFlag) {
+    displayVersion();
+    exit(0);
+  }
+
+  if (messageIndex == -1) {
+    println(STDERR, "Error: No message provided.");
+    displayUsage();
+    exit(1);
+  }
+
+  println(STDOUT, argv[messageIndex]);
   exit(0);
 }
