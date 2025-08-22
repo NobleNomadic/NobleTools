@@ -19,7 +19,7 @@ void displayUsage() {
 
 // Display version info
 void displayVersion() {
-  println(STDOUT, "talk v1.0.0");
+  println(STDOUT, "scrap v1.0.0");
 }
 
 // String compare wrapper using noblelib
